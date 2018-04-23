@@ -5,12 +5,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +35,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Movie[]>,
+        MovieAdapter.MovieAdapterOnClickHandler {
 
     // declare API_KEY
     private RecyclerView mRecyclerView;
@@ -78,7 +84,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         } else if (orderBy.equals(getString(R.string.settings_order_by_top_rated_value))) {
             urlToExecute = Constants.STRING_URL_TOP_RATED;
         }
-        new FetchMovieTask().execute(urlToExecute);
+        //new FetchMovieTask().execute(urlToExecute);
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(Constants.API_MOVIES_LIST, urlToExecute);
+        LoaderManager loaderManager = getSupportLoaderManager();
+        loaderManager.initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, this);
     }
 
     private void showMoviesDataView() {
@@ -104,7 +114,66 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(intent);
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
+    @NonNull
+    @Override
+    public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
+        return new AsyncTaskLoader<Movie[]>(this) {
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                if (args == null){
+                    return;
+                }
+                mProgressBar.setVisibility(View.VISIBLE);
+                forceLoad();
+            }
+
+            @Nullable
+            @Override
+            public Movie[] loadInBackground() {
+                String url = args.getString(Constants.API_MOVIES_LIST);
+                if (url == null || TextUtils.isEmpty(url)){
+                    return null;
+                }
+                try {
+                    URL movieRequestUrl = new URL(url);
+                    // get json response in a string
+                    String jsonMovieResponse = NetworkUtils
+                            .getResponseFromHttpUrl(movieRequestUrl);
+                    // return an array of movie objects
+                    return MovieJsonUtils.getMovies(jsonMovieResponse);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
+        mProgressBar.setVisibility(View.INVISIBLE);
+        if (data != null) {
+            showMoviesDataView();
+            mMovieAdapter.setMovieData(data);
+        } else {
+            showErrorMessage(getString(R.string.error_message));
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
+
+    }
+
+    /*public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
 
         @Override
         protected void onPreExecute() {
@@ -148,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 showErrorMessage(getString(R.string.error_message));
             }
         }
-    }
+    }*/
 
     private boolean isOnline() {
         ConnectivityManager cm =

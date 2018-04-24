@@ -29,7 +29,7 @@ import com.example.anfio.popularmovies.utilities.Constants;
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler {
 
-    // declare API_KEY
+    public Context mContext;
     private RecyclerView mRecyclerView;
     private MovieAdapter mMovieAdapter;
     private ProgressBar mProgressBar;
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
         mProgressBar = findViewById(R.id.pb_loading_indicator);
+        mContext = getApplicationContext();
 
         // check if connection is available
         if (!isOnline()) {
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements
         } else if (orderBy.equals(getString(R.string.settings_order_by_top_rated_value))) {
             urlToExecute = Constants.STRING_URL_TOP_RATED;
         }
-        //new FetchMovieTask().execute(urlToExecute);
         Bundle queryBundle = new Bundle();
         queryBundle.putString(Constants.API_MOVIES_LIST, urlToExecute);
         getSupportLoaderManager().initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, movieLoader);
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
             if (args != null){
                 url = args.getString(Constants.API_MOVIES_LIST);
             }
-            return new MovieApiLoader(getApplicationContext(), url);
+            return new MovieApiLoader(mContext, url);
         }
 
         @Override
@@ -110,6 +110,70 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     };
+
+    /*private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+        @NonNull
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            return new CursorLoader(mContext, MovieContract.MovieEntry.CONTENT_URI_FAVORITE, null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            if (data != null) {
+                showMoviesDataView();
+                mMovieCursorAdapter = new MovieCursorAdapter(mContext, data, movieCursorAdapterOnClickHandler);
+                mRecyclerView.setAdapter(mMovieCursorAdapter);
+                mMovieCursorAdapter.swapCursor(data);
+            } else {
+                showErrorMessage(getString(R.string.error_message));
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+        }
+    };*/
+
+    /*private void insertMoviesIntoDb(Movie[] moviesForDb, String urlString) {
+        Uri contentUri;
+        switch (urlString) {
+            case Constants.STRING_URL_POPULAR:
+                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
+                break;
+            case Constants.STRING_URL_TOP_RATED:
+                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
+                break;
+            default:
+                return;
+        }
+        ContentValues[] movieValuesArr = new ContentValues[moviesForDb.length];
+        for (int i = 0; i < moviesForDb.length; i++) {
+            int id = moviesForDb[i].getId();
+            String title = moviesForDb[i].getTitle();
+            String poster = moviesForDb[i].getImageUrl();
+            String synopsis = moviesForDb[i].getSynopsis();
+            double rating = moviesForDb[i].getRating();
+            String releaseDate = moviesForDb[i].getReleaseDate();
+
+            movieValuesArr[i] = new ContentValues();
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, id);
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_POSTER, poster);
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, synopsis);
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RATING, rating);
+            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+        }
+
+        // Insert new movies data via a ContentResolver
+
+        int deletedRows = getContentResolver().delete(contentUri, null, null);
+        int insertedRows = getContentResolver().bulkInsert(contentUri, movieValuesArr);
+
+    }*/
 
     private void showMoviesDataView() {
         // movies are visible, error message is hidden
@@ -133,55 +197,6 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra("myDataKey", myParcelable);
         startActivity(intent);
     }
-
-
-
-
-    /*public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Movie[] doInBackground(String... params) {
-            // if no url is passed return null
-            if (params.length == 0) {
-                return null;
-            }
-            String urlString = params[0];
-            try {
-                URL movieRequestUrl = new URL(urlString);
-                // get json response in a string
-                String jsonMovieResponse = NetworkUtils
-                        .getResponseFromHttpUrl(movieRequestUrl);
-                // return an array of movie objects
-                return MovieJsonUtils.getMovies(jsonMovieResponse);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Movie[] movies) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            if (movies != null) {
-                showMoviesDataView();
-                mMovieAdapter.setMovieData(movies);
-            } else {
-                showErrorMessage(getString(R.string.error_message));
-            }
-        }
-    }*/
 
     private boolean isOnline() {
         ConnectivityManager cm =

@@ -1,6 +1,8 @@
 package com.example.anfio.popularmovies.utilities;
 
 import com.example.anfio.popularmovies.models.Movie;
+import com.example.anfio.popularmovies.models.Review;
+import com.example.anfio.popularmovies.models.Video;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,5 +29,35 @@ public class MovieJsonUtils {
             movies[i] = new Movie(id, title, imageUrl, synopsis, rating, releaseDate);
         }
         return movies;
+    }
+
+    public static Video[] getVideos(String videoJsonString) throws JSONException {
+        JSONObject jsonMovieVideoString = new JSONObject(videoJsonString);
+        JSONArray jsonArrayResults = jsonMovieVideoString.getJSONArray("results");
+        Video[] videos = new Video[jsonArrayResults.length()];
+        for (int i = 0; i < jsonArrayResults.length(); i++){
+            JSONObject jsonVideo = jsonArrayResults.getJSONObject(i);
+            String id = jsonVideo.getString("id");
+            String key = jsonVideo.getString("key");
+            String name = jsonVideo.getString("name");
+            String site = jsonVideo.getString("site");
+            String type = jsonVideo.getString("type");
+            videos[i] = new Video(id, key, name, site, type);
+        }
+        return videos;
+    }
+
+    public static Review[] getReviews(String reviewJsonString) throws JSONException {
+        JSONObject jsonMovieReviewString = new JSONObject(reviewJsonString);
+        JSONArray jsonArrayResults = jsonMovieReviewString.getJSONArray("results");
+        Review[] reviews = new Review[jsonArrayResults.length()];
+        for (int i = 0; i < jsonArrayResults.length(); i++) {
+            JSONObject jsonReview = jsonArrayResults.getJSONObject(i);
+            String id = jsonReview.getString("id");
+            String author = jsonReview.getString("author");
+            String content = jsonReview.getString("content");
+            reviews[i] = new Review(id, author, content);
+        }
+        return reviews;
     }
 }

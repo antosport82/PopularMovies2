@@ -10,12 +10,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,19 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anfio.popularmovies.adapters.MovieAdapter;
+import com.example.anfio.popularmovies.loaders.MovieApiLoader;
 import com.example.anfio.popularmovies.models.Movie;
 import com.example.anfio.popularmovies.settings.SettingsActivity;
 import com.example.anfio.popularmovies.utilities.Constants;
-import com.example.anfio.popularmovies.utilities.MovieJsonUtils;
-import com.example.anfio.popularmovies.utilities.NetworkUtils;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Movie[]>,
+public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler {
 
     // declare API_KEY
@@ -61,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
         mProgressBar = findViewById(R.id.pb_loading_indicator);
+
         // check if connection is available
         if (!isOnline()) {
             showErrorMessage(getString(R.string.error_message_no_connection));
@@ -73,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void loadMovies() {
         showMoviesDataView();
         // get shared preference value
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String orderBy = sharedPrefs.getString(
                 getString(R.string.settings_order_by_key),
                 getString(R.string.settings_order_by_default));
@@ -87,9 +79,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         //new FetchMovieTask().execute(urlToExecute);
         Bundle queryBundle = new Bundle();
         queryBundle.putString(Constants.API_MOVIES_LIST, urlToExecute);
-        LoaderManager loaderManager = getSupportLoaderManager();
-        loaderManager.initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, this);
+        getSupportLoaderManager().initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, movieLoader);
     }
+
+    private LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
+        @NonNull
+        @Override
+        public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            String url = "";
+            if (args != null){
+                url = args.getString(Constants.API_MOVIES_LIST);
+            }
+            return new MovieApiLoader(getApplicationContext(), url);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            if (data != null) {
+                showMoviesDataView();
+                mMovieAdapter.setMovieData(data);
+            } else {
+                showErrorMessage(getString(R.string.error_message));
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
+
+        }
+    };
 
     private void showMoviesDataView() {
         // movies are visible, error message is hidden
@@ -114,64 +134,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         startActivity(intent);
     }
 
-    @NonNull
-    @Override
-    public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
-        return new AsyncTaskLoader<Movie[]>(this) {
 
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-                if (args == null){
-                    return;
-                }
-                mProgressBar.setVisibility(View.VISIBLE);
-                forceLoad();
-            }
 
-            @Nullable
-            @Override
-            public Movie[] loadInBackground() {
-                String url = args.getString(Constants.API_MOVIES_LIST);
-                if (url == null || TextUtils.isEmpty(url)){
-                    return null;
-                }
-                try {
-                    URL movieRequestUrl = new URL(url);
-                    // get json response in a string
-                    String jsonMovieResponse = NetworkUtils
-                            .getResponseFromHttpUrl(movieRequestUrl);
-                    // return an array of movie objects
-                    return MovieJsonUtils.getMovies(jsonMovieResponse);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                    return null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        if (data != null) {
-            showMoviesDataView();
-            mMovieAdapter.setMovieData(data);
-        } else {
-            showErrorMessage(getString(R.string.error_message));
-        }
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
-
-    }
 
     /*public class FetchMovieTask extends AsyncTask<String, Void, Movie[]> {
 

@@ -19,4 +19,9 @@
     <!-- order-by top rated option -->
     <string name="settings_order_by_top_rated_label">Top Rated</string>
     <string name="settings_order_by_top_rated_value" translatable="false">top_rated</string>
+    <!-- show favorite option -->
+    <string name="settings_order_by_favorite_label">Favorite</string>
+    <string name="settings_order_by_favorite_value" translatable="false">favorite</string>
+    <string name="videos">Videos</string>
+    <string name="reviews">Reviews</string>
 </resources>

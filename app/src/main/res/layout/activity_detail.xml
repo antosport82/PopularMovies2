@@ -37,57 +37,63 @@
 
                 <ImageView
                     android:id="@+id/star_black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/ImageStyle"
                     android:layout_below="@+id/tv_title"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="12dp"
                     android:contentDescription="@string/rating_star"
                     android:src="@drawable/ic_star_black_24dp" />
 
                 <TextView
                     android:id="@+id/tv_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextViewStyle"
                     android:layout_below="@id/tv_title"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_toEndOf="@+id/star_black"
-                    android:layout_toRightOf="@+id/star_black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textSize="18sp" />
+                    android:layout_toEndOf="@+id/star_black" />
 
                 <ImageView
                     android:id="@+id/today_black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/ImageStyle"
                     android:layout_below="@+id/star_black"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
                     android:contentDescription="@string/release_icon"
                     android:src="@drawable/ic_today_black_24dp" />
 
                 <TextView
                     android:id="@+id/tv_release_date"
+                    style="@style/TextViewStyle"
+                    android:layout_below="@id/star_black"
+                    android:layout_toEndOf="@+id/today_black" />
+
+                <ImageView
+                    android:id="@+id/iv_fav_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/star_black"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_toEndOf="@+id/today_black"
-                    android:layout_toRightOf="@+id/today_black"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textSize="18sp" />
+                    android:layout_below="@id/today_black"
+                    android:layout_marginTop="25dp"
+                    android:layout_centerHorizontal="true"
+                    android:contentDescription="@string/movie_image"
+                    android:src="@drawable/ic_favorite_border_black_48dp"/>
 
             </RelativeLayout>
 
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/tv_videos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/videos"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textSize="20sp" />
+
+        <!--<android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_videos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />-->
 
         <View
             android:layout_width="match_parent"
@@ -112,6 +118,26 @@
             android:padding="12dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="16sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/tv_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/reviews"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textSize="20sp" />
+
+        <!--<android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />-->
 
         <View
             android:layout_width="match_parent"

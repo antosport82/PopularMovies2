@@ -13,7 +13,7 @@ import com.example.anfio.popularmovies.R;
 import com.example.anfio.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
-public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.MovieViewHolder> {
+public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieViewHolder> {
 
     // Class variables for the Cursor that holds task data and the Context
     private Cursor mCursor;
@@ -21,27 +21,23 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
     public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
 
     //on-click handler defined to make it easy for an Activity to interface with
-    private final MovieCursorAdapterOnClickHandler mClickHandler;
+    private final MovieFavAdapterOnClickHandler mClickHandler;
 
     // The interface that receives onClick messages.
-    public interface MovieCursorAdapterOnClickHandler {
+    public interface MovieFavAdapterOnClickHandler {
         void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate);
     }
 
     /**
      * Constructor for the MovieCursorAdapter that initializes the Context.
      *
-     * @param context the current Context
-     * @param cursor the  Cursor
      */
-    public MovieCursorAdapter(Context context, Cursor cursor, MovieCursorAdapter.MovieCursorAdapterOnClickHandler clickHandler) {
-        this.mContext = context;
-        this.mCursor = cursor;
+    public MovieFavAdapter(MovieFavAdapterOnClickHandler clickHandler) {
         this.mClickHandler = clickHandler;
     }
 
     // Inner class for creating ViewHolders
-    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Class variables
         public final ImageView imageView;
@@ -53,7 +49,6 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
          */
         public MovieViewHolder(View itemView) {
             super(itemView);
-
             imageView = itemView.findViewById(R.id.iv_movie_picture);
         }
 
@@ -81,6 +76,7 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
+        mContext = parent.getContext();
         // Inflate the layout to a view
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.movie_list_item, parent, false);
@@ -89,17 +85,16 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieCursorAdapter.MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieFavAdapter.MovieViewHolder holder, int position) {
         // Move the mCursor to the position of the movie to be displayed
-        if (mCursor.moveToPosition(position)){
-            // build image path
-            String path = BASE_URL_IMAGE + mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER));
-            Picasso.with(holder.imageView.getContext())
-                    .load(path)
-                    .placeholder(R.drawable.loading)
-                    .error(R.drawable.ic_error_outline_black_24dp)
-                    .into(holder.imageView);
-        }
+        mCursor.moveToPosition(position);
+        // build image path
+        String path = BASE_URL_IMAGE + mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER));
+        Picasso.with(holder.imageView.getContext())
+                .load(path)
+                .placeholder(R.drawable.loading)
+                .error(R.drawable.ic_error_outline_black_24dp)
+                .into(holder.imageView);
     }
 
     public int getItemCount() {

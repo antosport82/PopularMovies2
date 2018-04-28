@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 public class MovieProvider extends ContentProvider {
 
@@ -225,99 +224,62 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        Log.i("Antonio", "bulkinsert arrived");
 
         // Write URI matching code to identify the match for the movies directory
         int match = sUriMatcher.match(uri);
-
+        String tableName = "";
         switch (match) {
-
             case CODE_MOVIES_POPULAR:
-                // allows for multiple transactions
-                db.beginTransaction();
-
-                // keep track of successful inserts
-                int numInserted = 0;
-
-                try {
-                    for (ContentValues value : values) {
-                        if (value == null) {
-                            throw new IllegalArgumentException("Cannot have null content values");
-                        }
-                        long _id = -1;
-
-                        try {
-                            _id = db.insert(MovieContract.MovieEntry.TABLE_NAME_POPULAR,
-                                    null, value);
-                            Log.i("Antonio", "inserted value popular: OK");
-                        } catch (SQLiteConstraintException e) {
-                            e.printStackTrace();
-                        }
-                        if (_id != -1) {
-                            numInserted++;
-                        }
-                    }
-                    if (numInserted > 0) {
-                        // If no errors, declare a successful transaction.
-                        // database will not populate if this is not called
-                        db.setTransactionSuccessful();
-                    }
-                } finally {
-                    // all transactions occur at once
-                    db.endTransaction();
-                }
-                if (numInserted > 0) {
-                    // if there was successful insertion, notify the content resolver that there
-                    // was a change
-                    getContext().getContentResolver().notifyChange(uri, null);
-                }
-                return numInserted;
-
+                tableName = MovieContract.MovieEntry.TABLE_NAME_POPULAR;
+                break;
             case CODE_MOVIES_TOP_RATED:
-                // allows for multiple transactions
-                db.beginTransaction();
-
-                // keep track of successful inserts
-                int rowInserted = 0;
-
-                try {
-                    for (ContentValues value : values) {
-                        if (value == null) {
-                            throw new IllegalArgumentException("Cannot have null content values");
-                        }
-                        long _id = -1;
-
-                        try {
-                            _id = db.insert(MovieContract.MovieEntry.TABLE_NAME_TOP_RATED,
-                                    null, value);
-                            Log.i("Antonio", "inserted value top rated: OK");
-                        } catch (SQLiteConstraintException e) {
-                            e.printStackTrace();
-                        }
-                        if (_id != -1) {
-                            rowInserted++;
-                        }
-                    }
-                    if (rowInserted > 0) {
-                        // If no errors, declare a successful transaction.
-                        // database will not populate if this is not called
-                        db.setTransactionSuccessful();
-                    }
-                } finally {
-                    // all transactions occur at once
-                    db.endTransaction();
-                }
-                if (rowInserted > 0) {
-                    // if there was successful insertion, notify the content resolver that there
-                    // was a change
-                    getContext().getContentResolver().notifyChange(uri, null);
-                }
-                return rowInserted;
-
+                tableName = MovieContract.MovieEntry.TABLE_NAME_TOP_RATED;
+                break;
+            case CODE_MOVIES_FAVORITE:
+                tableName = MovieContract.MovieEntry.TABLE_NAME_FAVORITE;
+                break;
             default:
                 return super.bulkInsert(uri, values);
         }
 
+        // allows for multiple transactions
+        db.beginTransaction();
+
+        // keep track of successful inserts
+        int numInserted = 0;
+
+        try {
+            for (ContentValues value : values) {
+                if (value == null) {
+                    throw new IllegalArgumentException("Cannot have null content values");
+                }
+                long _id = -1;
+
+                try {
+                    _id = db.insert(tableName,
+                            null, value);
+                } catch (SQLiteConstraintException e) {
+                    e.printStackTrace();
+                }
+                if (_id != -1) {
+                    numInserted++;
+                }
+            }
+            if (numInserted > 0) {
+                // If no errors, declare a successful transaction.
+                // database will not populate if this is not called
+                db.setTransactionSuccessful();
+            }
+        } finally {
+            // all transactions occur at once
+            db.endTransaction();
+        }
+        if (numInserted > 0) {
+            // if there was successful insertion, notify the content resolver that there
+            // was a change
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return numInserted;
     }
 
     @Override
@@ -332,11 +294,9 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case CODE_MOVIES_TOP_RATED:
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME_TOP_RATED, selection, selectionArgs);
-                Log.i("Antonio", "delete top rated: OK");
                 break;
             case CODE_MOVIES_POPULAR:
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME_POPULAR, selection, selectionArgs);
-                Log.i("Antonio", "delete popular: OK");
                 break;
             case CODE_MOVIE_FAVORITE_WITH_ID:
                 String idFavorite = uri.getLastPathSegment();
@@ -357,6 +317,4 @@ public class MovieProvider extends ContentProvider {
             selection, @Nullable String[] selectionArgs) {
         return 0;
     }
-
-
 }

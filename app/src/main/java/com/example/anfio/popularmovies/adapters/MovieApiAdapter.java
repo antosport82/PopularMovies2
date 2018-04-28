@@ -15,16 +15,16 @@ import com.squareup.picasso.Picasso;
  * Created by anfio on 28/02/2018 - Popular Movies App - Udacity Project
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieViewHolder> {
 
     private Movie[] mMovieData;
     public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
 
     //on-click handler defined to make it easy for an Activity to interface with
-    private final MovieAdapterOnClickHandler mClickHandler;
+    private final MovieApiAdapterOnClickHandler mClickHandler;
 
     // The interface that receives onClick messages.
-    public interface MovieAdapterOnClickHandler {
+    public interface MovieApiAdapterOnClickHandler {
         void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate);
     }
 
@@ -34,7 +34,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
-    public MovieAdapter(MovieAdapterOnClickHandler clickHandler) {
+    public MovieApiAdapter(MovieApiAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
     }
 

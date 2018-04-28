@@ -3,6 +3,7 @@ package com.example.anfio.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -10,28 +11,33 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.anfio.popularmovies.adapters.MovieAdapter;
+import com.example.anfio.popularmovies.adapters.MovieApiAdapter;
+import com.example.anfio.popularmovies.adapters.MovieFavAdapter;
+import com.example.anfio.popularmovies.data.MovieContract;
 import com.example.anfio.popularmovies.loaders.MovieApiLoader;
 import com.example.anfio.popularmovies.models.Movie;
 import com.example.anfio.popularmovies.settings.SettingsActivity;
 import com.example.anfio.popularmovies.utilities.Constants;
 
 public class MainActivity extends AppCompatActivity implements
-        MovieAdapter.MovieAdapterOnClickHandler {
+        MovieApiAdapter.MovieApiAdapterOnClickHandler, MovieFavAdapter.MovieFavAdapterOnClickHandler {
 
     public Context mContext;
     private RecyclerView mRecyclerView;
-    private MovieAdapter mMovieAdapter;
+    private MovieApiAdapter mMovieApiAdapter;
+    private MovieFavAdapter mMovieFavAdapter;
     private ProgressBar mProgressBar;
     private TextView mErrorMessage;
     // The two urls to use at this stage
@@ -49,23 +55,36 @@ public class MainActivity extends AppCompatActivity implements
                 = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mMovieAdapter = new MovieAdapter(this);
-        mRecyclerView.setAdapter(mMovieAdapter);
         mProgressBar = findViewById(R.id.pb_loading_indicator);
         mContext = getApplicationContext();
 
         // check if connection is available
-        if (!isOnline()) {
-            showErrorMessage(getString(R.string.error_message_no_connection));
-        } else {
-            // start of the process of loading the movies on the app
-            loadMovies();
-        }
+        // start of the process of loading the movies on the app
+        loadMovies();
     }
 
     private void loadMovies() {
-        showMoviesDataView();
-        // get shared preference value
+        String orderBy = getUrlByPref();
+        if (!isOnline() && !orderBy.equals(Constants.STRING_URL_FAVORITE)) {
+            showErrorMessage(getString(R.string.error_message_no_connection));
+        } else if (orderBy.equals(Constants.STRING_URL_FAVORITE)) {
+            mMovieFavAdapter = new MovieFavAdapter(this);
+            mRecyclerView.setAdapter(mMovieFavAdapter);
+            showMoviesDataView();
+            Log.i("Antonio", "loadMovies: favorites");
+            getSupportLoaderManager().initLoader(Constants.ID_CURSOR_LOADER, null, cursorLoader);
+        } else {
+            mMovieApiAdapter = new MovieApiAdapter(this);
+            mRecyclerView.setAdapter(mMovieApiAdapter);
+            showMoviesDataView();
+            Bundle queryBundle = new Bundle();
+            queryBundle.putString(Constants.API_MOVIES_LIST, orderBy);
+            Log.i("Antonio", "loadMovies: api");
+            getSupportLoaderManager().initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, movieLoader);
+        }
+    }
+
+    private String getUrlByPref() {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String orderBy = sharedPrefs.getString(
                 getString(R.string.settings_order_by_key),
@@ -76,10 +95,10 @@ public class MainActivity extends AppCompatActivity implements
             urlToExecute = Constants.STRING_URL_POPULAR;
         } else if (orderBy.equals(getString(R.string.settings_order_by_top_rated_value))) {
             urlToExecute = Constants.STRING_URL_TOP_RATED;
+        } else {
+            urlToExecute = Constants.STRING_URL_FAVORITE;
         }
-        Bundle queryBundle = new Bundle();
-        queryBundle.putString(Constants.API_MOVIES_LIST, urlToExecute);
-        getSupportLoaderManager().initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, movieLoader);
+        return urlToExecute;
     }
 
     private LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
@@ -88,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements
         public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
             mProgressBar.setVisibility(View.VISIBLE);
             String url = "";
-            if (args != null){
+            if (args != null) {
                 url = args.getString(Constants.API_MOVIES_LIST);
             }
             return new MovieApiLoader(mContext, url);
@@ -99,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
             mProgressBar.setVisibility(View.INVISIBLE);
             if (data != null) {
                 showMoviesDataView();
-                mMovieAdapter.setMovieData(data);
+                mMovieApiAdapter.setMovieData(data);
             } else {
                 showErrorMessage(getString(R.string.error_message));
             }
@@ -107,11 +126,10 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
-
         }
     };
 
-    /*private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+    private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
 
         @NonNull
         @Override
@@ -122,11 +140,10 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            mProgressBar.setVisibility(View.INVISIBLE);
             if (data != null) {
                 showMoviesDataView();
-                mMovieCursorAdapter = new MovieCursorAdapter(mContext, data, movieCursorAdapterOnClickHandler);
-                mRecyclerView.setAdapter(mMovieCursorAdapter);
-                mMovieCursorAdapter.swapCursor(data);
+                mMovieFavAdapter.swapCursor(data);
             } else {
                 showErrorMessage(getString(R.string.error_message));
             }
@@ -134,46 +151,8 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
         }
-    };*/
-
-    /*private void insertMoviesIntoDb(Movie[] moviesForDb, String urlString) {
-        Uri contentUri;
-        switch (urlString) {
-            case Constants.STRING_URL_POPULAR:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
-                break;
-            case Constants.STRING_URL_TOP_RATED:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
-                break;
-            default:
-                return;
-        }
-        ContentValues[] movieValuesArr = new ContentValues[moviesForDb.length];
-        for (int i = 0; i < moviesForDb.length; i++) {
-            int id = moviesForDb[i].getId();
-            String title = moviesForDb[i].getTitle();
-            String poster = moviesForDb[i].getImageUrl();
-            String synopsis = moviesForDb[i].getSynopsis();
-            double rating = moviesForDb[i].getRating();
-            String releaseDate = moviesForDb[i].getReleaseDate();
-
-            movieValuesArr[i] = new ContentValues();
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, id);
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_TITLE, title);
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_POSTER, poster);
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_SYNOPSIS, synopsis);
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RATING, rating);
-            movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
-        }
-
-        // Insert new movies data via a ContentResolver
-
-        int deletedRows = getContentResolver().delete(contentUri, null, null);
-        int insertedRows = getContentResolver().bulkInsert(contentUri, movieValuesArr);
-
-    }*/
+    };
 
     private void showMoviesDataView() {
         // movies are visible, error message is hidden
@@ -223,8 +202,8 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
-        } else if (item.getItemId() == R.id.refresh){
-            if (!isOnline()){
+        } else if (item.getItemId() == R.id.refresh) {
+            if (!isOnline()) {
                 showErrorMessage(getString(R.string.error_message_no_connection));
             } else {
                 loadMovies();

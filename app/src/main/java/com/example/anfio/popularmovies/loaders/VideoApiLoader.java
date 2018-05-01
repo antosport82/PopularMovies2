@@ -16,7 +16,7 @@ import java.net.URL;
 
 public class VideoApiLoader extends AsyncTaskLoader<Video[]> {
 
-    private String mUrl;
+    private final String mUrl;
 
     public VideoApiLoader(Context context, String url) {
         super(context);

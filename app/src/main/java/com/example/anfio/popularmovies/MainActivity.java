@@ -16,7 +16,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,10 +30,9 @@ import com.example.anfio.popularmovies.models.Movie;
 import com.example.anfio.popularmovies.settings.SettingsActivity;
 import com.example.anfio.popularmovies.utilities.Constants;
 
-public class MainActivity extends AppCompatActivity implements
-        MovieApiAdapter.MovieApiAdapterOnClickHandler, MovieFavAdapter.MovieFavAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity {
 
-    public Context mContext;
+    private Context mContext;
     private RecyclerView mRecyclerView;
     private MovieApiAdapter mMovieApiAdapter;
     private MovieFavAdapter mMovieFavAdapter;
@@ -46,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mRecyclerView = findViewById(R.id.rv_movies);
         mErrorMessage = findViewById(R.id.tv_error_message);
 
@@ -58,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements
         mProgressBar = findViewById(R.id.pb_loading_indicator);
         mContext = getApplicationContext();
 
-        // check if connection is available
         // start of the process of loading the movies on the app
         loadMovies();
     }
@@ -68,18 +64,34 @@ public class MainActivity extends AppCompatActivity implements
         if (!isOnline() && !orderBy.equals(Constants.STRING_URL_FAVORITE)) {
             showErrorMessage(getString(R.string.error_message_no_connection));
         } else if (orderBy.equals(Constants.STRING_URL_FAVORITE)) {
-            mMovieFavAdapter = new MovieFavAdapter(this);
+            mMovieFavAdapter = new MovieFavAdapter(mContext, new MovieFavAdapter.MovieFavAdapterOnClickHandler() {
+                @Override
+                public void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate) {
+                    // Parcelable used to pass the object to the intent
+                    Movie myParcelable = new Movie(id, title, imageUrl, synopsis, rating, releaseDate);
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("myDataKey", myParcelable);
+                    startActivity(intent);
+                }
+            });
             mRecyclerView.setAdapter(mMovieFavAdapter);
             showMoviesDataView();
-            Log.i("Antonio", "loadMovies: favorites");
             getSupportLoaderManager().initLoader(Constants.ID_CURSOR_LOADER, null, cursorLoader);
         } else {
-            mMovieApiAdapter = new MovieApiAdapter(this);
+            mMovieApiAdapter = new MovieApiAdapter(mContext, new MovieApiAdapter.MovieApiAdapterOnClickHandler() {
+                @Override
+                public void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate) {
+                    // Parcelable used to pass the object to the intent
+                    Movie myParcelable = new Movie(id, title, imageUrl, synopsis, rating, releaseDate);
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("myDataKey", myParcelable);
+                    startActivity(intent);
+                }
+            });
             mRecyclerView.setAdapter(mMovieApiAdapter);
             showMoviesDataView();
             Bundle queryBundle = new Bundle();
             queryBundle.putString(Constants.API_MOVIES_LIST, orderBy);
-            Log.i("Antonio", "loadMovies: api");
             getSupportLoaderManager().initLoader(Constants.ID_ASYNCTASK_LOADER, queryBundle, movieLoader);
         }
     }
@@ -90,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements
                 getString(R.string.settings_order_by_key),
                 getString(R.string.settings_order_by_default));
         // assign the value to a string variable
-        String urlToExecute = "";
+        String urlToExecute;
         if (orderBy.equals(getString(R.string.settings_order_by_most_popular_value))) {
             urlToExecute = Constants.STRING_URL_POPULAR;
         } else if (orderBy.equals(getString(R.string.settings_order_by_top_rated_value))) {
@@ -101,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements
         return urlToExecute;
     }
 
-    private LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
+    private final LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
         @NonNull
         @Override
         public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
@@ -126,10 +138,11 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
+            mMovieApiAdapter.setMovieData(null);
         }
     };
 
-    private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+    private final LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
 
         @NonNull
         @Override
@@ -151,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+            mMovieFavAdapter.swapCursor(null);
         }
     };
 
@@ -165,16 +179,6 @@ public class MainActivity extends AppCompatActivity implements
         mRecyclerView.setVisibility(View.INVISIBLE);
         mErrorMessage.setText(error);
         mErrorMessage.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate) {
-        Context context = this;
-        // Parcelable used to pass the object to the intent
-        Movie myParcelable = new Movie(id, title, imageUrl, synopsis, rating, releaseDate);
-        Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra("myDataKey", myParcelable);
-        startActivity(intent);
     }
 
     private boolean isOnline() {
@@ -202,7 +206,8 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
-        } else if (item.getItemId() == R.id.refresh) {
+        }
+        if (item.getItemId() == R.id.refresh) {
             if (!isOnline()) {
                 showErrorMessage(getString(R.string.error_message_no_connection));
             } else {

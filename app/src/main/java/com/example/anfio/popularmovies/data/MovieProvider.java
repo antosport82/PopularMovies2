@@ -15,17 +15,17 @@ import android.support.annotation.Nullable;
 
 public class MovieProvider extends ContentProvider {
 
-    public static final int CODE_MOVIES_POPULAR = 100;
-    public static final int CODE_MOVIES_TOP_RATED = 200;
-    public static final int CODE_MOVIES_FAVORITE = 300;
-    public static final int CODE_MOVIE_POPULAR_WITH_ID = 101;
-    public static final int CODE_MOVIE_TOP_RATED_WITH_ID = 201;
-    public static final int CODE_MOVIE_FAVORITE_WITH_ID = 301;
+    private static final int CODE_MOVIES_POPULAR = 100;
+    private static final int CODE_MOVIES_TOP_RATED = 200;
+    private static final int CODE_MOVIES_FAVORITE = 300;
+    private static final int CODE_MOVIE_POPULAR_WITH_ID = 101;
+    private static final int CODE_MOVIE_TOP_RATED_WITH_ID = 201;
+    private static final int CODE_MOVIE_FAVORITE_WITH_ID = 301;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDbHelper mOpenHelper;
 
-    public static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
@@ -179,7 +179,6 @@ public class MovieProvider extends ContentProvider {
 
         // Write URI matching code to identify the match for the movies directory
         int match = sUriMatcher.match(uri);
-
         Uri returnUri;
 
         switch (match) {
@@ -227,7 +226,7 @@ public class MovieProvider extends ContentProvider {
 
         // Write URI matching code to identify the match for the movies directory
         int match = sUriMatcher.match(uri);
-        String tableName = "";
+        String tableName;
         switch (match) {
             case CODE_MOVIES_POPULAR:
                 tableName = MovieContract.MovieEntry.TABLE_NAME_POPULAR;

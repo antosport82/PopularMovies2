@@ -65,9 +65,9 @@ public class VideoApiAdapter extends RecyclerView.Adapter<VideoApiAdapter.VideoV
     // custom ViewHolder that implements OnClickListener
     public class VideoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public final ImageView imageView;
+        final ImageView imageView;
 
-        public VideoViewHolder(View itemView) {
+        VideoViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_video_picture);
             itemView.setOnClickListener(this);

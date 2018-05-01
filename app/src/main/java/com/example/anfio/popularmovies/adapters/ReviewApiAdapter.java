@@ -19,7 +19,7 @@ public class ReviewApiAdapter extends RecyclerView.Adapter<ReviewApiAdapter.Revi
 
     // The interface that receives onClick messages.
     public interface ReviewApiAdapterOnClickHandler {
-        void onClick(String key);
+        void onClick(String id, String author, String content);
     }
 
     /**
@@ -62,10 +62,10 @@ public class ReviewApiAdapter extends RecyclerView.Adapter<ReviewApiAdapter.Revi
     // custom ViewHolder that implements OnClickListener
     public class ReviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public final TextView textViewAuthor;
-        public final TextView textViewContent;
+        final TextView textViewAuthor;
+        final TextView textViewContent;
 
-        public ReviewViewHolder(View itemView) {
+        ReviewViewHolder(View itemView) {
             super(itemView);
             textViewAuthor = itemView.findViewById(R.id.tv_author);
             textViewContent = itemView.findViewById(R.id.tv_content);
@@ -75,8 +75,12 @@ public class ReviewApiAdapter extends RecyclerView.Adapter<ReviewApiAdapter.Revi
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
+            // get movie data at the current position
             String id = mReviewData[adapterPosition].getId();
-            mClickHandler.onClick(id);
+            String author = mReviewData[adapterPosition].getAuthor();
+            String content = mReviewData[adapterPosition].getContent();
+            // call onClick and pass the review data
+            mClickHandler.onClick(id, author, content);
         }
     }
 

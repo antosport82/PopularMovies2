@@ -1,6 +1,7 @@
 package com.example.anfio.popularmovies.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.squareup.picasso.Picasso;
 
 public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieViewHolder> {
 
+    private Context mContext;
     private Movie[] mMovieData;
     public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
 
@@ -34,7 +36,9 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
-    public MovieApiAdapter(MovieApiAdapterOnClickHandler clickHandler) {
+    public MovieApiAdapter(Context context, MovieApiAdapterOnClickHandler clickHandler) {
+        super();
+        mContext = context;
         mClickHandler = clickHandler;
     }
 
@@ -65,8 +69,9 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
         }
     }
 
+    @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
         int layoutForItem = R.layout.movie_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -75,7 +80,7 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         // build image path
         String path = BASE_URL_IMAGE + mMovieData[position].getImageUrl();
         Picasso.with(holder.imageView.getContext()).load(path).into(holder.imageView);

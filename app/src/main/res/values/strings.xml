@@ -24,4 +24,5 @@
     <string name="settings_order_by_favorite_value" translatable="false">favorite</string>
     <string name="videos">Videos</string>
     <string name="reviews">Reviews</string>
+    <string name="detail_activity_extra">Review</string>
 </resources>

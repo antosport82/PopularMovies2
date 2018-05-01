@@ -18,7 +18,7 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
     // Class variables for the Cursor that holds task data and the Context
     private Cursor mCursor;
     private Context mContext;
-    public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
+    private static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
 
     //on-click handler defined to make it easy for an Activity to interface with
     private final MovieFavAdapterOnClickHandler mClickHandler;
@@ -32,24 +32,26 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
      * Constructor for the MovieCursorAdapter that initializes the Context.
      *
      */
-    public MovieFavAdapter(MovieFavAdapterOnClickHandler clickHandler) {
-        this.mClickHandler = clickHandler;
+    public MovieFavAdapter(Context context, MovieFavAdapterOnClickHandler clickHandler) {
+        mContext = context;
+        mClickHandler = clickHandler;
     }
 
     // Inner class for creating ViewHolders
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Class variables
-        public final ImageView imageView;
+        final ImageView imageView;
 
         /**
          * Constructor for the MovieViewHolders.
          *
          * @param itemView The view inflated in onCreateViewHolder
          */
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_movie_picture);
+            itemView.setOnClickListener(this);
         }
 
         @Override
@@ -73,8 +75,9 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
      *
      * @return A new TaskViewHolder that holds the view for each task
      */
+    @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         mContext = parent.getContext();
         // Inflate the layout to a view

@@ -2,7 +2,7 @@ package com.example.anfio.popularmovies.utilities;
 
 public class Constants {
 
-    private static final String API_KEY = "6fc62dd8c53da1d83a1b2eadac3054e9";
+    private static final String API_KEY = API_KEY_HERE;
 
     // used in MainActivity
     public static final int ID_ASYNCTASK_LOADER = 21;
@@ -18,7 +18,7 @@ public class Constants {
     public static final String ID_MOVIE_FAVORITE = "id_movie_favorite";
     public static final int ID_ASYNCTASK_LOADER_DETAIL_VIDEOS = 54;
     public static final int ID_ASYNCTASK_LOADER_DETAIL_REVIEWS = 55;
-    public static final int ID_CURSOR_LOADER_FAVORITE = 56;
+    public static final int ID_CURSOR_LOADER_FAVORITE_CHECK = 56;
     public static final String STRING_URL_REVIEWS_I = "http://api.themoviedb.org/3/movie/";
     public static final String STRING_URL_REVIEWS_II = "/reviews?api_key=" + Constants.API_KEY;
     public static final String STRING_URL_VIDEOS_I = "http://api.themoviedb.org/3/movie/";

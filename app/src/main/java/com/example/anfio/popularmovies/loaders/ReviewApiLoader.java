@@ -16,7 +16,7 @@ import java.net.URL;
 
 public class ReviewApiLoader extends AsyncTaskLoader<Review[]> {
 
-    private String mUrl;
+    private final String mUrl;
 
     public ReviewApiLoader(Context context, String url) {
         super(context);
@@ -41,7 +41,7 @@ public class ReviewApiLoader extends AsyncTaskLoader<Review[]> {
             // get json response in a string
             String jsonMovieResponse = NetworkUtils
                     .getResponseFromHttpUrl(movieRequestUrl);
-            // return an array of video objects
+            // return an array of review objects
             return MovieJsonUtils.getReviews(jsonMovieResponse);
         } catch (MalformedURLException e) {
             e.printStackTrace();

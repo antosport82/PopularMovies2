@@ -20,7 +20,8 @@ import java.net.URL;
 
 public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
 
-    private String mUrl;
+    private final String mUrl;
+    private Movie[] movieData;
 
     public MovieApiLoader(Context context, String url) {
         super(context);
@@ -30,7 +31,11 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
     @Override
     protected void onStartLoading() {
         super.onStartLoading();
-        forceLoad();
+        if (movieData != null){
+            deliverResult(movieData);
+        } else {
+            forceLoad();
+        }
     }
 
     @Nullable
@@ -60,6 +65,13 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
         }
     }
 
+    @Override
+    public void deliverResult(@Nullable Movie[] data) {
+        super.deliverResult(data);
+        movieData = data;
+    }
+
+    // created for debug purpose. Fast deletion of movies from DB
     private void deleteMoviesFromDb(String stringUrlFavorite) {
         Uri contentUri;
         switch (stringUrlFavorite) {
@@ -78,6 +90,7 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
         int deletedRows = getContext().getContentResolver().delete(contentUri, null, null);
     }
 
+    // created for debug purpose. Fast insertion of movies into favorites table
     private void insertMoviesIntoDb(Movie[] moviesForDb, String urlString) {
         Uri contentUri;
         switch (urlString) {

@@ -2,7 +2,7 @@ package com.example.anfio.popularmovies.utilities;
 
 public class Constants {
 
-    private static final String API_KEY = API_KEY_HERE;
+    private static final String API_KEY = "6fc62dd8c53da1d83a1b2eadac3054e9";
 
     // used in MainActivity
     public static final int ID_ASYNCTASK_LOADER = 21;

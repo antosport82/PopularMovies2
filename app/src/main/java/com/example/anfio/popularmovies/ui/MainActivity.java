@@ -1,4 +1,4 @@
-package com.example.anfio.popularmovies;
+package com.example.anfio.popularmovies.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.anfio.popularmovies.R;
 import com.example.anfio.popularmovies.adapters.MovieApiAdapter;
 import com.example.anfio.popularmovies.adapters.MovieFavAdapter;
 import com.example.anfio.popularmovies.data.MovieContract;

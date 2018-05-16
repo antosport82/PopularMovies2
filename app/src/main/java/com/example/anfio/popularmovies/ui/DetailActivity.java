@@ -1,4 +1,4 @@
-package com.example.anfio.popularmovies;
+package com.example.anfio.popularmovies.ui;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.anfio.popularmovies.R;
 import com.example.anfio.popularmovies.adapters.MovieApiAdapter;
 import com.example.anfio.popularmovies.adapters.ReviewApiAdapter;
 import com.example.anfio.popularmovies.adapters.VideoApiAdapter;

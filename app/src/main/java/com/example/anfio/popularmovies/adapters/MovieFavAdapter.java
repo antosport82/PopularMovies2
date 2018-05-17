@@ -32,7 +32,9 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
      * Constructor for the MovieCursorAdapter that initializes the Context.
      *
      */
+
     public MovieFavAdapter(Context context, MovieFavAdapterOnClickHandler clickHandler) {
+        super();
         mContext = context;
         mClickHandler = clickHandler;
     }
@@ -101,12 +103,13 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
     }
 
     public int getItemCount() {
+        if (mCursor == null) return 0;
         return mCursor.getCount();
     }
 
     public void swapCursor(Cursor newCursor) {
         // Always close the previous mCursor first
-        if (mCursor != null) mCursor.close();
+        //if (mCursor != null) mCursor.close();
         mCursor = newCursor;
         if (newCursor != null) {
             // Force the RecyclerView to refresh

@@ -36,6 +36,8 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
+
+
     public MovieApiAdapter(Context context, MovieApiAdapterOnClickHandler clickHandler) {
         super();
         mContext = context;

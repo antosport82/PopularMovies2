@@ -40,6 +40,59 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private TextView mErrorMessage;
     // The two urls to use at this stage
+    private LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
+        @NonNull
+        @Override
+        public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            String url = "";
+            if (args != null) {
+                url = args.getString(Constants.API_MOVIES_LIST);
+            }
+            return new MovieApiLoader(mContext, url);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            if (data != null) {
+                showMoviesDataView();
+                mMovieApiAdapter.setMovieData(data);
+            } else {
+                showErrorMessage(getString(R.string.error_message));
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
+            mMovieApiAdapter.setMovieData(null);
+        }
+    };
+    private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+        @NonNull
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            return new CursorLoader(mContext, MovieContract.MovieEntry.CONTENT_URI_FAVORITE, null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            if (data != null) {
+                showMoviesDataView();
+                mMovieFavAdapter.swapCursor(data);
+            } else {
+                showErrorMessage(getString(R.string.error_message));
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+            mMovieFavAdapter.swapCursor(null);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,60 +167,7 @@ public class MainActivity extends AppCompatActivity {
         return urlToExecute;
     }
 
-    private final LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
-        @NonNull
-        @Override
-        public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            String url = "";
-            if (args != null) {
-                url = args.getString(Constants.API_MOVIES_LIST);
-            }
-            return new MovieApiLoader(mContext, url);
-        }
 
-        @Override
-        public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            if (data != null) {
-                showMoviesDataView();
-                mMovieApiAdapter.setMovieData(data);
-            } else {
-                showErrorMessage(getString(R.string.error_message));
-            }
-        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
-            mMovieApiAdapter.setMovieData(null);
-        }
-    };
-
-    private final LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
-
-        @NonNull
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            return new CursorLoader(mContext, MovieContract.MovieEntry.CONTENT_URI_FAVORITE, null, null, null, null);
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            if (data != null) {
-                showMoviesDataView();
-                mMovieFavAdapter.swapCursor(data);
-            } else {
-                showErrorMessage(getString(R.string.error_message));
-            }
-        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-            mMovieFavAdapter.swapCursor(null);
-        }
-    };
 
     private void showMoviesDataView() {
         // movies are visible, error message is hidden

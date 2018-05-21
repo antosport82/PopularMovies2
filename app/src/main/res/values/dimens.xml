@@ -5,4 +5,5 @@
     <dimen name="layout_marginTop_iV_tV">12dp</dimen>
     <dimen name="layout_marginLeft_tV">3dp</dimen>
     <dimen name="layout_marginStart_tV">3dp</dimen>
+    <dimen name="layout_marginTop_detail_tV">8dp</dimen>
 </resources>

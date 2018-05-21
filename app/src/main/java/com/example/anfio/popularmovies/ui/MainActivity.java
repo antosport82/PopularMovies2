@@ -3,6 +3,7 @@ package com.example.anfio.popularmovies.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -23,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anfio.popularmovies.R;
-import com.example.anfio.popularmovies.adapters.MovieApiAdapter;
+import com.example.anfio.popularmovies.adapters.MovieAdapter;
 import com.example.anfio.popularmovies.adapters.MovieFavAdapter;
 import com.example.anfio.popularmovies.data.MovieContract;
 import com.example.anfio.popularmovies.loaders.MovieApiLoader;
@@ -35,12 +36,12 @@ public class MainActivity extends AppCompatActivity {
 
     private Context mContext;
     private RecyclerView mRecyclerView;
-    private MovieApiAdapter mMovieApiAdapter;
+    private MovieAdapter mMovieAdapter;
     private MovieFavAdapter mMovieFavAdapter;
     private ProgressBar mProgressBar;
     private TextView mErrorMessage;
     // The two urls to use at this stage
-    private LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
+    private final LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
         @NonNull
         @Override
         public Loader<Movie[]> onCreateLoader(int id, @Nullable final Bundle args) {
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             mProgressBar.setVisibility(View.INVISIBLE);
             if (data != null) {
                 showMoviesDataView();
-                mMovieApiAdapter.setMovieData(data);
+                mMovieAdapter.setMovieData(data);
             } else {
                 showErrorMessage(getString(R.string.error_message));
             }
@@ -65,10 +66,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
-            mMovieApiAdapter.setMovieData(null);
+            mMovieAdapter.setMovieData(null);
         }
     };
-    private LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+    private final LoaderManager.LoaderCallbacks<Cursor> cursorLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
 
         @NonNull
         @Override
@@ -80,9 +81,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
             mProgressBar.setVisibility(View.INVISIBLE);
-            if (data != null) {
+            boolean hasData = data.getCount() != 0;
+            if (hasData) {
                 showMoviesDataView();
                 mMovieFavAdapter.swapCursor(data);
+            } else if (!hasData) {
+                showErrorMessage(getString((R.string.error_no_favorites)));
             } else {
                 showErrorMessage(getString(R.string.error_message));
             }
@@ -100,15 +104,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.rv_movies);
         mErrorMessage = findViewById(R.id.tv_error_message);
-
-        // GridLayout will be used
-        RecyclerView.LayoutManager layoutManager
-                = new GridLayoutManager(this, 2);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mContext = getApplicationContext();
+        // create the grid based on orientation
+        if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 2));
+        } else {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
+        }
         mRecyclerView.setHasFixedSize(true);
         mProgressBar = findViewById(R.id.pb_loading_indicator);
-        mContext = getApplicationContext();
-
         // start of the process of loading the movies on the app
         loadMovies();
     }
@@ -132,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             showMoviesDataView();
             getSupportLoaderManager().initLoader(Constants.ID_CURSOR_LOADER, null, cursorLoader);
         } else {
-            mMovieApiAdapter = new MovieApiAdapter(mContext, new MovieApiAdapter.MovieApiAdapterOnClickHandler() {
+            mMovieAdapter = new MovieAdapter(mContext, new MovieAdapter.MovieAdapterOnClickHandler() {
                 @Override
                 public void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate) {
                     // Parcelable used to pass the object to the intent
@@ -142,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-            mRecyclerView.setAdapter(mMovieApiAdapter);
+            mRecyclerView.setAdapter(mMovieAdapter);
             showMoviesDataView();
             Bundle queryBundle = new Bundle();
             queryBundle.putString(Constants.API_MOVIES_LIST, orderBy);
@@ -166,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return urlToExecute;
     }
-
-
 
     private void showMoviesDataView() {
         // movies are visible, error message is hidden

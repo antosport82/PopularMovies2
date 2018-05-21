@@ -18,7 +18,7 @@ public class MovieJsonUtils {
         JSONObject jsonMovieString = new JSONObject(movieJsonString);
         JSONArray jsonArrayResults = jsonMovieString.getJSONArray("results");
         Movie[] movies = new Movie[jsonArrayResults.length()];
-        for (int i = 0; i < jsonArrayResults.length(); i++){
+        for (int i = 0; i < jsonArrayResults.length(); i++) {
             JSONObject jsonMovie = jsonArrayResults.getJSONObject(i);
             int id = jsonMovie.getInt("id");
             String title = jsonMovie.getString("title");
@@ -35,7 +35,7 @@ public class MovieJsonUtils {
         JSONObject jsonMovieVideoString = new JSONObject(videoJsonString);
         JSONArray jsonArrayResults = jsonMovieVideoString.getJSONArray("results");
         Video[] videos = new Video[jsonArrayResults.length()];
-        for (int i = 0; i < jsonArrayResults.length(); i++){
+        for (int i = 0; i < jsonArrayResults.length(); i++) {
             JSONObject jsonVideo = jsonArrayResults.getJSONObject(i);
             String id = jsonVideo.getString("id");
             String key = jsonVideo.getString("key");

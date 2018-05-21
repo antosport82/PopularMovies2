@@ -13,7 +13,7 @@ import com.example.anfio.popularmovies.models.Video;
 import com.example.anfio.popularmovies.utilities.Constants;
 import com.squareup.picasso.Picasso;
 
-public class VideoApiAdapter extends RecyclerView.Adapter<VideoApiAdapter.VideoViewHolder>  {
+public class VideoApiAdapter extends RecyclerView.Adapter<VideoApiAdapter.VideoViewHolder> {
 
     private Video[] mVideoData;
     private final VideoApiAdapter.VideoApiAdapterOnClickHandler mClickHandler;

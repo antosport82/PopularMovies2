@@ -3,7 +3,7 @@ package com.example.anfio.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Review implements Parcelable{
+public class Review implements Parcelable {
 
     private String mId;
     private String mAuthor;

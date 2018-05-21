@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anfio.popularmovies.R;
-import com.example.anfio.popularmovies.adapters.MovieApiAdapter;
+import com.example.anfio.popularmovies.adapters.MovieAdapter;
 import com.example.anfio.popularmovies.adapters.ReviewApiAdapter;
 import com.example.anfio.popularmovies.adapters.VideoApiAdapter;
 import com.example.anfio.popularmovies.data.MovieContract;
@@ -40,11 +40,97 @@ public class DetailActivity extends AppCompatActivity {
     private Context mContext;
     private boolean mFavorite;
 
+    private final LoaderManager.LoaderCallbacks<Video[]> videoLoader = new LoaderManager.LoaderCallbacks<Video[]>() {
+        @NonNull
+        @Override
+        public Loader<Video[]> onCreateLoader(int id, @Nullable Bundle args) {
+            String url = "";
+            if (args != null) {
+                url = args.getString(Constants.API_MOVIES_VIDEOS);
+            }
+            return new VideoApiLoader(mContext, url);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Video[]> loader, Video[] data) {
+            if (data != null) {
+                mVideoApiAdapter.setVideoData(data);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Video[]> loader) {
+        }
+    };
+
+    private final LoaderManager.LoaderCallbacks<Review[]> reviewLoader = new LoaderManager.LoaderCallbacks<Review[]>() {
+        @NonNull
+        @Override
+        public Loader<Review[]> onCreateLoader(int id, @Nullable Bundle args) {
+            String url = "";
+            if (args != null) {
+                url = args.getString(Constants.API_MOVIES_REVIEWS);
+            }
+            return new ReviewApiLoader(mContext, url);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Review[]> loader, Review[] data) {
+            if (data != null) {
+                mReviewApiAdapter.setReviewData(data);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Review[]> loader) {
+        }
+    };
+
+    private final LoaderManager.LoaderCallbacks<Cursor> favoriteLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @NonNull
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+            String movie_id = null;
+            if (args != null) {
+                movie_id = args.getString(Constants.ID_MOVIE_FAVORITE);
+            }
+            String selection = "movie_id = ?";
+            String[] selectionArgs = new String[]{String.valueOf(movie_id)};
+            return new CursorLoader(mContext, MovieContract.MovieEntry.CONTENT_URI_FAVORITE, null, selection, selectionArgs, null);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            if ((!(data.moveToFirst()) || data.getCount() == 0)) {
+                favIconIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_48dp));
+                mFavorite = false;
+            } else {
+                favIconIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_48dp));
+                mFavorite = true;
+            }
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        // get Movie data from the intent (Parcelable is used)
+        final Movie myParcelable = getIntent().getParcelableExtra("myDataKey");
+        final int id = myParcelable.getId();
+        String title = myParcelable.getTitle();
+        String imageUrl = myParcelable.getImageUrl();
+        String synopsis = myParcelable.getSynopsis();
+        double rating = myParcelable.getRating();
+        String releaseDate = myParcelable.getReleaseDate();
+
+        //ImageView topImageIv = findViewById(R.id.iv_top_movie_image);
         TextView titleTv = findViewById(R.id.tv_title);
         ImageView imageUrlIv = findViewById(R.id.iv_movie_image);
         TextView synopsisTv = findViewById(R.id.tv_synopsis);
@@ -71,7 +157,6 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
         videoRecyclerView.setAdapter(mVideoApiAdapter);
-
         RecyclerView reviewRecyclerView = findViewById(R.id.rv_review);
         RecyclerView.LayoutManager reviewLayoutManager
                 = new GridLayoutManager(this, 1, GridLayoutManager.HORIZONTAL, false);
@@ -87,19 +172,9 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
         reviewRecyclerView.setAdapter(mReviewApiAdapter);
-
-        // get Movie data from the intent (Parcelable is used)
-        final Movie myParcelable = getIntent().getParcelableExtra("myDataKey");
-        final int id = myParcelable.getId();
-        String title = myParcelable.getTitle();
-        String imageUrl = myParcelable.getImageUrl();
-        String synopsis = myParcelable.getSynopsis();
-        double rating = myParcelable.getRating();
-        String releaseDate = myParcelable.getReleaseDate();
-
         titleTv.setText(title);
         // build complete image path
-        String path = MovieApiAdapter.BASE_URL_IMAGE + imageUrl;
+        String path = MovieAdapter.BASE_URL_IMAGE + imageUrl;
         Picasso.with(this).load(path).into(imageUrlIv);
         synopsisTv.setText(synopsis);
         ratingTv.setText(String.valueOf(rating));
@@ -137,93 +212,9 @@ public class DetailActivity extends AppCompatActivity {
         getSupportLoaderManager().initLoader(Constants.ID_CURSOR_LOADER_FAVORITE_CHECK, queryBundleFavorite, favoriteLoader);
     }
 
-    private final LoaderManager.LoaderCallbacks<Video[]> videoLoader = new LoaderManager.LoaderCallbacks<Video[]>() {
-        @NonNull
-        @Override
-        public Loader<Video[]> onCreateLoader(int id, @Nullable Bundle args) {
-            String url = "";
-            if (args != null) {
-                url = args.getString(Constants.API_MOVIES_VIDEOS);
-            }
-            return new VideoApiLoader(mContext, url);
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull Loader<Video[]> loader, Video[] data) {
-            if (data != null) {
-                mVideoApiAdapter.setVideoData(data);
-            }
-        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<Video[]> loader) {
-
-        }
-    };
-
-    private final LoaderManager.LoaderCallbacks<Review[]> reviewLoader = new LoaderManager.LoaderCallbacks<Review[]>() {
-        @NonNull
-        @Override
-        public Loader<Review[]> onCreateLoader(int id, @Nullable Bundle args) {
-            String url = "";
-            if (args != null) {
-                url = args.getString(Constants.API_MOVIES_REVIEWS);
-            }
-            return new ReviewApiLoader(mContext, url);
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull Loader<Review[]> loader, Review[] data) {
-            if (data != null) {
-                mReviewApiAdapter.setReviewData(data);
-            }
-        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<Review[]> loader) {
-
-        }
-    };
-
-    private final LoaderManager.LoaderCallbacks<Cursor> favoriteLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
-        @NonNull
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-            String movie_id = null;
-            if (args != null) {
-                movie_id = args.getString(Constants.ID_MOVIE_FAVORITE);
-            }
-            String selection = "movie_id = ?";
-            String[] selectionArgs = new String[]{String.valueOf(movie_id)};
-            return new CursorLoader(mContext, MovieContract.MovieEntry.CONTENT_URI_FAVORITE, null, selection, selectionArgs, null);
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-            if ((!(data.moveToFirst()) || data.getCount() == 0)) {
-                favIconIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_48dp));
-                mFavorite = false;
-            } else {
-                favIconIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_48dp));
-                mFavorite = true;
-            }
-        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
-        }
-    };
-
     private void insertMovieIntoDb(Movie movie, String urlString) {
         Uri contentUri;
         switch (urlString) {
-            case Constants.STRING_URL_POPULAR:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
-                break;
-            case Constants.STRING_URL_TOP_RATED:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
-                break;
             case Constants.STRING_URL_FAVORITE:
                 contentUri = MovieContract.MovieEntry.CONTENT_URI_FAVORITE;
                 break;
@@ -248,20 +239,14 @@ public class DetailActivity extends AppCompatActivity {
 
         // Insert a new movie via a ContentResolver
         Uri insertedMovie = getContentResolver().insert(contentUri, contentValue);
-        if(insertedMovie != null){
-            Toast.makeText(DetailActivity.this, "Movie inserted with id: " + insertedMovie, Toast.LENGTH_SHORT).show();
+        if (insertedMovie != null) {
+            Toast.makeText(DetailActivity.this, "The movie has been added to your favorites.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void deleteMovieFromDb(int id, String urlString) {
         Uri contentUri;
         switch (urlString) {
-            case Constants.STRING_URL_POPULAR:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
-                break;
-            case Constants.STRING_URL_TOP_RATED:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
-                break;
             case Constants.STRING_URL_FAVORITE:
                 contentUri = MovieContract.MovieEntry.buildMovieUriWithId(id);
                 break;
@@ -272,7 +257,7 @@ public class DetailActivity extends AppCompatActivity {
         // Delete a movie via a ContentResolver
         int deletedRows = getContentResolver().delete(contentUri, null, null);
         if (deletedRows > 0) {
-            Toast.makeText(DetailActivity.this, deletedRows + " movie deleted from DB. ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(DetailActivity.this, "The movie has been deleted from your favorites.", Toast.LENGTH_SHORT).show();
         }
     }
 }

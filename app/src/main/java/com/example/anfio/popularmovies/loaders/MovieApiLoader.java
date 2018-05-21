@@ -31,7 +31,7 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
     @Override
     protected void onStartLoading() {
         super.onStartLoading();
-        if (movieData != null){
+        if (movieData != null) {
             deliverResult(movieData);
         } else {
             forceLoad();
@@ -50,8 +50,6 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
             // get json response in a string
             String jsonMovieResponse = NetworkUtils
                     .getResponseFromHttpUrl(movieRequestUrl);
-            //insertMoviesIntoDb(moviesForDb, Constants.STRING_URL_FAVORITE);
-            //deleteMoviesFromDb(Constants.STRING_URL_FAVORITE);
             return MovieJsonUtils.getMovies(jsonMovieResponse);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -75,38 +73,26 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
     private void deleteMoviesFromDb(String stringUrlFavorite) {
         Uri contentUri;
         switch (stringUrlFavorite) {
-            case Constants.STRING_URL_POPULAR:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
-                break;
-            case Constants.STRING_URL_TOP_RATED:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
-                break;
             case Constants.STRING_URL_FAVORITE:
                 contentUri = MovieContract.MovieEntry.CONTENT_URI_FAVORITE;
                 break;
             default:
                 return;
         }
-        int deletedRows = getContext().getContentResolver().delete(contentUri, null, null);
+        getContext().getContentResolver().delete(contentUri, null, null);
     }
 
     // created for debug purpose. Fast insertion of movies into favorites table
     private void insertMoviesIntoDb(Movie[] moviesForDb, String urlString) {
         Uri contentUri;
         switch (urlString) {
-            case Constants.STRING_URL_POPULAR:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_POPULAR;
-                break;
-            case Constants.STRING_URL_TOP_RATED:
-                contentUri = MovieContract.MovieEntry.CONTENT_URI_TOP_RATED;
-                break;
             case Constants.STRING_URL_FAVORITE:
                 contentUri = MovieContract.MovieEntry.CONTENT_URI_FAVORITE;
                 break;
             default:
                 return;
         }
-        ContentValues[] movieValuesArr = new ContentValues[/*moviesForDb.length*/3];
+        ContentValues[] movieValuesArr = new ContentValues[3];
         for (int i = 0; i < 3; i++) {
             int id = moviesForDb[i].getId();
             String title = moviesForDb[i].getTitle();
@@ -123,9 +109,7 @@ public class MovieApiLoader extends AsyncTaskLoader<Movie[]> {
             movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RATING, rating);
             movieValuesArr[i].put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
         }
-
         // Insert new movies data via a ContentResolver
-        int deletedRows = getContext().getContentResolver().delete(contentUri, null, null);
-        int insertedRows = getContext().getContentResolver().bulkInsert(contentUri, movieValuesArr);
+        getContext().getContentResolver().bulkInsert(contentUri, movieValuesArr);
     }
 }

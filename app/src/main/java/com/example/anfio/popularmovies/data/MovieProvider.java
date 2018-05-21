@@ -15,11 +15,7 @@ import android.support.annotation.Nullable;
 
 public class MovieProvider extends ContentProvider {
 
-    private static final int CODE_MOVIES_POPULAR = 100;
-    private static final int CODE_MOVIES_TOP_RATED = 200;
     private static final int CODE_MOVIES_FAVORITE = 300;
-    private static final int CODE_MOVIE_POPULAR_WITH_ID = 101;
-    private static final int CODE_MOVIE_TOP_RATED_WITH_ID = 201;
     private static final int CODE_MOVIE_FAVORITE_WITH_ID = 301;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -32,8 +28,6 @@ public class MovieProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         // This URI is content://com.example.anfio.popularmovies/movies/ */
-        matcher.addURI(authority, MovieContract.PATH_POPULAR_MOVIES, CODE_MOVIES_POPULAR);
-        matcher.addURI(authority, MovieContract.PATH_TOP_RATED_MOVIES, CODE_MOVIES_TOP_RATED);
         matcher.addURI(authority, MovieContract.PATH_FAVORITE_MOVIES, CODE_MOVIES_FAVORITE);
 
         /*
@@ -41,10 +35,7 @@ public class MovieProvider extends ContentProvider {
          * The "/#" signifies to the UriMatcher that if PATH_MOVIES is followed by ANY number,
          * that it should return the CODE_MOVIE_WITH_ID code
          */
-        matcher.addURI(authority, MovieContract.PATH_POPULAR_MOVIES + "/#", CODE_MOVIE_POPULAR_WITH_ID);
-        matcher.addURI(authority, MovieContract.PATH_TOP_RATED_MOVIES + "/#", CODE_MOVIE_TOP_RATED_WITH_ID);
         matcher.addURI(authority, MovieContract.PATH_FAVORITE_MOVIES + "/#", CODE_MOVIE_FAVORITE_WITH_ID);
-
         return matcher;
     }
 
@@ -66,32 +57,6 @@ public class MovieProvider extends ContentProvider {
          */
         switch (sUriMatcher.match(uri)) {
 
-            case CODE_MOVIES_POPULAR:
-                cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME_POPULAR,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-
-                break;
-
-            case CODE_MOVIES_TOP_RATED:
-                cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME_TOP_RATED,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-
-                break;
-
             case CODE_MOVIES_FAVORITE:
                 cursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME_FAVORITE,
@@ -105,47 +70,13 @@ public class MovieProvider extends ContentProvider {
 
                 break;
 
-            case CODE_MOVIE_POPULAR_WITH_ID:
-
-                String id = uri.getLastPathSegment();
-                String[] selectionArguments = new String[]{id};
-
-                cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME_POPULAR,
-                        projection,
-                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ? ",
-                        selectionArguments,
-                        null,
-                        null,
-                        sortOrder
-                );
-
-                break;
-
-            case CODE_MOVIE_TOP_RATED_WITH_ID:
-
-                String idTopRated = uri.getLastPathSegment();
-                String[] selectionArgumentsTopRated = new String[]{idTopRated};
-
-                cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME_TOP_RATED,
-                        projection,
-                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ? ",
-                        selectionArgumentsTopRated,
-                        null,
-                        null,
-                        sortOrder
-                );
-
-                break;
-
             case CODE_MOVIE_FAVORITE_WITH_ID:
 
                 String idFavorite = uri.getLastPathSegment();
                 String[] selectionArgumentsFavorite = new String[]{idFavorite};
 
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME_TOP_RATED,
+                        MovieContract.MovieEntry.TABLE_NAME_FAVORITE,
                         projection,
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ? ",
                         selectionArgumentsFavorite,
@@ -183,24 +114,6 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
 
-            case CODE_MOVIES_POPULAR:
-                long id = db.insert(MovieContract.MovieEntry.TABLE_NAME_POPULAR, null, values);
-                if (id > 0) {
-                    returnUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI_POPULAR, id);
-                } else {
-                    throw new SQLException("Error in inserting data for uri: " + uri);
-                }
-                break;
-
-            case CODE_MOVIES_TOP_RATED:
-                long idTopRated = db.insert(MovieContract.MovieEntry.TABLE_NAME_TOP_RATED, null, values);
-                if (idTopRated > 0) {
-                    returnUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI_TOP_RATED, idTopRated);
-                } else {
-                    throw new SQLException("Error in inserting data for uri: " + uri);
-                }
-                break;
-
             case CODE_MOVIES_FAVORITE:
                 long idFavorite = db.insert(MovieContract.MovieEntry.TABLE_NAME_FAVORITE, null, values);
                 if (idFavorite > 0) {
@@ -228,12 +141,6 @@ public class MovieProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         String tableName;
         switch (match) {
-            case CODE_MOVIES_POPULAR:
-                tableName = MovieContract.MovieEntry.TABLE_NAME_POPULAR;
-                break;
-            case CODE_MOVIES_TOP_RATED:
-                tableName = MovieContract.MovieEntry.TABLE_NAME_TOP_RATED;
-                break;
             case CODE_MOVIES_FAVORITE:
                 tableName = MovieContract.MovieEntry.TABLE_NAME_FAVORITE;
                 break;
@@ -291,12 +198,6 @@ public class MovieProvider extends ContentProvider {
         int deletedRows;
 
         switch (match) {
-            case CODE_MOVIES_TOP_RATED:
-                deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME_TOP_RATED, selection, selectionArgs);
-                break;
-            case CODE_MOVIES_POPULAR:
-                deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME_POPULAR, selection, selectionArgs);
-                break;
             case CODE_MOVIE_FAVORITE_WITH_ID:
                 String idFavorite = uri.getLastPathSegment();
                 String[] selectionArgumentsFavorite = new String[]{idFavorite};

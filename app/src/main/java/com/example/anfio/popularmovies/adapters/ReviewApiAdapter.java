@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.example.anfio.popularmovies.R;
 import com.example.anfio.popularmovies.models.Review;
 
-public class ReviewApiAdapter extends RecyclerView.Adapter<ReviewApiAdapter.ReviewViewHolder>  {
+public class ReviewApiAdapter extends RecyclerView.Adapter<ReviewApiAdapter.ReviewViewHolder> {
 
 
     private Review[] mReviewData;

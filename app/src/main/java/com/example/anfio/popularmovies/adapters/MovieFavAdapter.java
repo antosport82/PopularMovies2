@@ -29,8 +29,11 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
     }
 
     /**
-     * Constructor for the MovieCursorAdapter that initializes the Context.
+     * Constructor for the MovieFavAdapter that initializes the Context.
      *
+     * @param context      The context
+     * @param clickHandler The on-click handler for this adapter. This single handler is called
+     *                     when an item is clicked.
      */
 
     public MovieFavAdapter(Context context, MovieFavAdapterOnClickHandler clickHandler) {
@@ -85,7 +88,6 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
         // Inflate the layout to a view
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.movie_list_item, parent, false);
-
         return new MovieViewHolder(view);
     }
 
@@ -109,7 +111,7 @@ public class MovieFavAdapter extends RecyclerView.Adapter<MovieFavAdapter.MovieV
 
     public void swapCursor(Cursor newCursor) {
         // Always close the previous mCursor first
-        //if (mCursor != null) mCursor.close();
+        if (mCursor != null) mCursor.close();
         mCursor = newCursor;
         if (newCursor != null) {
             // Force the RecyclerView to refresh

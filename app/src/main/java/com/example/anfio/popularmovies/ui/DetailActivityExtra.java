@@ -24,6 +24,5 @@ public class DetailActivityExtra extends AppCompatActivity {
 
         authorTv.setText(author);
         contentTv.setText(content);
-
     }
 }

@@ -16,29 +16,29 @@ import com.squareup.picasso.Picasso;
  * Created by anfio on 28/02/2018 - Popular Movies App - Udacity Project
  */
 
-public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     private Context mContext;
     private Movie[] mMovieData;
     public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p/w342";
 
     //on-click handler defined to make it easy for an Activity to interface with
-    private final MovieApiAdapterOnClickHandler mClickHandler;
+    private final MovieAdapterOnClickHandler mClickHandler;
 
     // The interface that receives onClick messages.
-    public interface MovieApiAdapterOnClickHandler {
+    public interface MovieAdapterOnClickHandler {
         void onClick(int id, String title, String imageUrl, String synopsis, double rating, String releaseDate);
     }
 
     /**
-     * Creates a ForecastAdapter.
+     * Creates a MovieAdapter.
      *
+     * @param context      The context
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
 
-
-    public MovieApiAdapter(Context context, MovieApiAdapterOnClickHandler clickHandler) {
+    public MovieAdapter(Context context, MovieAdapterOnClickHandler clickHandler) {
         super();
         mContext = context;
         mClickHandler = clickHandler;
@@ -47,10 +47,10 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
     // custom ViewHolder that implements OnClickListener
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public final ImageView imageView;
+        final ImageView imageView;
 
         // setup the onClickListener on the imageView
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_movie_picture);
             itemView.setOnClickListener(this);
@@ -74,15 +74,15 @@ public class MovieApiAdapter extends RecyclerView.Adapter<MovieApiAdapter.MovieV
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
+        mContext = viewGroup.getContext();
         int layoutForItem = R.layout.movie_list_item;
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(layoutForItem, viewGroup, false);
         return new MovieViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieAdapter.MovieViewHolder holder, int position) {
         // build image path
         String path = BASE_URL_IMAGE + mMovieData[position].getImageUrl();
         Picasso.with(holder.imageView.getContext()).load(path).into(holder.imageView);

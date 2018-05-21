@@ -6,32 +6,18 @@ import android.provider.BaseColumns;
 public class MovieContract {
 
     public static final String CONTENT_AUTHORITY = "com.example.anfio.popularmovies";
-
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-
-    public static final String PATH_POPULAR_MOVIES = "popular_movies";
-    public static final String PATH_TOP_RATED_MOVIES = "top_rated_movies";
     public static final String PATH_FAVORITE_MOVIES = "favorite_movies";
 
     public static final class MovieEntry implements BaseColumns {
 
         /* The base CONTENT_URI used to query the Movies table from the content provider */
-        public static final Uri CONTENT_URI_POPULAR = BASE_CONTENT_URI.buildUpon()
-                .appendPath(PATH_POPULAR_MOVIES)
-                .build();
-
-        public static final Uri CONTENT_URI_TOP_RATED = BASE_CONTENT_URI.buildUpon()
-                .appendPath(PATH_TOP_RATED_MOVIES)
-                .build();
 
         public static final Uri CONTENT_URI_FAVORITE = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_FAVORITE_MOVIES)
                 .build();
 
-        public static final String TABLE_NAME_POPULAR = "popular_movies";
-        public static final String TABLE_NAME_TOP_RATED = "top_rated_movies";
         public static final String TABLE_NAME_FAVORITE = "favorite_movies";
-
         public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_POSTER = "poster";
@@ -52,6 +38,5 @@ public class MovieContract {
                     .appendPath(Integer.toString(id))
                     .build();
         }
-
     }
 }

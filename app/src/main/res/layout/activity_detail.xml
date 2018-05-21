@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#e6f2ff"
     tools:context="com.example.anfio.popularmovies.ui.DetailActivity">
 
     <LinearLayout
@@ -66,49 +67,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/today_black"
-                    android:layout_marginTop="25dp"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginTop="25dp"
                     android:contentDescription="@string/movie_image"
-                    android:src="@drawable/ic_favorite_border_black_48dp"/>
+                    android:src="@drawable/ic_favorite_border_black_48dp" />
 
             </RelativeLayout>
 
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
-
         <TextView
             android:id="@+id/tv_videos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/videos"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textSize="20sp" />
+            style="@style/TextViewDetailStyle"
+            android:text="@string/videos" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_videos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
-
         <TextView
             android:id="@+id/tv_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/overview"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textSize="20sp" />
+            style="@style/TextViewDetailStyle"
+            android:text="@string/overview" />
 
         <TextView
             android:id="@+id/tv_synopsis"
@@ -119,30 +100,15 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="16sp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
-
         <TextView
             android:id="@+id/tv_reviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/reviews"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textSize="20sp" />
+            style="@style/TextViewDetailStyle"
+            android:text="@string/reviews" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
 
     </LinearLayout>
 </ScrollView>

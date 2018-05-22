@@ -1,9 +1,11 @@
 package com.example.anfio.popularmovies.utilities;
 
+import com.example.anfio.popularmovies.BuildConfig;
+
 public class Constants {
 
     // define API_KEY
-    private static final String API_KEY = "insert-api-key-here";
+    private static final String API_KEY = BuildConfig.API_KEY;
 
     // used in MainActivity
     public static final int ID_ASYNCTASK_LOADER = 21;

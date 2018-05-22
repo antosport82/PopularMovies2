@@ -32,9 +32,17 @@ import com.example.anfio.popularmovies.models.Video;
 import com.example.anfio.popularmovies.utilities.Constants;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DetailActivity extends AppCompatActivity {
 
-    private ImageView favIconIv;
+    @BindView(R.id.iv_fav_icon) ImageView favIconIv;
+    @BindView(R.id.tv_title) TextView titleTv;
+    @BindView(R.id.iv_movie_image) ImageView imageUrlIv;
+    @BindView(R.id.tv_synopsis) TextView synopsisTv;
+    @BindView(R.id.tv_rating) TextView ratingTv;
+    @BindView(R.id.tv_release_date) TextView releaseDateTv;
     private VideoApiAdapter mVideoApiAdapter;
     private ReviewApiAdapter mReviewApiAdapter;
     private Context mContext;
@@ -120,6 +128,7 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        ButterKnife.bind(this);
 
         // get Movie data from the intent (Parcelable is used)
         final Movie myParcelable = getIntent().getParcelableExtra("myDataKey");
@@ -130,13 +139,6 @@ public class DetailActivity extends AppCompatActivity {
         double rating = myParcelable.getRating();
         String releaseDate = myParcelable.getReleaseDate();
 
-        //ImageView topImageIv = findViewById(R.id.iv_top_movie_image);
-        TextView titleTv = findViewById(R.id.tv_title);
-        ImageView imageUrlIv = findViewById(R.id.iv_movie_image);
-        TextView synopsisTv = findViewById(R.id.tv_synopsis);
-        TextView ratingTv = findViewById(R.id.tv_rating);
-        TextView releaseDateTv = findViewById(R.id.tv_release_date);
-        favIconIv = findViewById(R.id.iv_fav_icon);
         mContext = getApplicationContext();
         mFavorite = false;
 

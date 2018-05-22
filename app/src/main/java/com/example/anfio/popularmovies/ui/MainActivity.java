@@ -32,14 +32,17 @@ import com.example.anfio.popularmovies.models.Movie;
 import com.example.anfio.popularmovies.settings.SettingsActivity;
 import com.example.anfio.popularmovies.utilities.Constants;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
     private Context mContext;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.rv_movies) RecyclerView mRecyclerView;
+    @BindView(R.id.pb_loading_indicator)ProgressBar mProgressBar;
+    @BindView(R.id.tv_error_message) TextView mErrorMessage;
     private MovieAdapter mMovieAdapter;
     private MovieFavAdapter mMovieFavAdapter;
-    private ProgressBar mProgressBar;
-    private TextView mErrorMessage;
     // The two urls to use at this stage
     private final LoaderManager.LoaderCallbacks<Movie[]> movieLoader = new LoaderManager.LoaderCallbacks<Movie[]>() {
         @NonNull
@@ -85,10 +88,8 @@ public class MainActivity extends AppCompatActivity {
             if (hasData) {
                 showMoviesDataView();
                 mMovieFavAdapter.swapCursor(data);
-            } else if (!hasData) {
-                showErrorMessage(getString((R.string.error_no_favorites)));
             } else {
-                showErrorMessage(getString(R.string.error_message));
+                showErrorMessage(getString((R.string.error_no_favorites)));
             }
         }
 
@@ -102,8 +103,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mRecyclerView = findViewById(R.id.rv_movies);
-        mErrorMessage = findViewById(R.id.tv_error_message);
+        ButterKnife.bind(this);
         mContext = getApplicationContext();
         // create the grid based on orientation
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
             mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
         }
         mRecyclerView.setHasFixedSize(true);
-        mProgressBar = findViewById(R.id.pb_loading_indicator);
         // start of the process of loading the movies on the app
         loadMovies();
     }

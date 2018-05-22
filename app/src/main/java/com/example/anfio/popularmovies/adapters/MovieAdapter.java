@@ -85,7 +85,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(@NonNull MovieAdapter.MovieViewHolder holder, int position) {
         // build image path
         String path = BASE_URL_IMAGE + mMovieData[position].getImageUrl();
-        Picasso.with(holder.imageView.getContext()).load(path).into(holder.imageView);
+        Picasso.with(holder.imageView.getContext()).load(path)
+                .placeholder(R.drawable.loading)
+                .error(R.drawable.ic_error_outline_black_24dp)
+                .into(holder.imageView);
     }
 
     @Override
